@@ -1,5 +1,13 @@
 class User < ApplicationRecord
+  has_many :permissions
+  has_many :settings
+  accepts_nested_attributes_for :permissions, :settings
+
   has_secure_password
+
+  def self.default_scope
+    eager_load(:permissions, :settings)
+  end
 
   def self.set_bcrypt_cost
     BCrypt::Engine.cost = 12

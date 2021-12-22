@@ -4,7 +4,7 @@ include Benchmark
 User.set_bcrypt_cost
 
 existing_email = User.order(Arel.sql('RANDOM()')).pluck(:email).first
-password = ""
+password = "a"
 near_miss_email = existing_email.next
 missing_email = "z000000000000000000000000000000000000000000000000000000000000000"
 

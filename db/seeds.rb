@@ -6,24 +6,26 @@
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
 
-batches = 1000
-records_in_batch = 500
+batches = 500
+records_in_batch = 1000
 
 User.set_bcrypt_cost
 
 password = Faker::Internet.password(min_length: 10, max_length: 20, mix_case: true, special_characters: true)
-password_digest = BCrypt::Password.create(password,)
+password_digest = BCrypt::Password.create(password)
+large_data = "a" * 1024 * 250
 
 (1..batches).each do |current_batch|
   User.transaction do
+    records = []
     (1..records_in_batch).each do |_current_record_in_batch|
       email = Faker::Internet.email
       email_hmac = User.hmac email
 
-      User.create!({
+      records.push({
                      email: email,
                      email_hmac: email_hmac,
-                     reset_password_token: Faker::Omniauth.google[:credentials][:token],
+                     reset_password_token: Faker::Crypto.sha1,
                      last_name: Faker::Name.last_name,
                      first_name: Faker::Name.first_name,
                      name: Faker::Internet.username,
@@ -39,9 +41,39 @@ password_digest = BCrypt::Password.create(password,)
                      current_sign_in_at: Faker::Date.between(from: 2.years.ago, to: Date.today),
                      last_sign_in_at: Faker::Date.between(from: 2.years.ago, to: Date.today),
 
-                     password_digest: password_digest
+                     password_digest: password_digest,
+
+                     large_data: large_data.next,
                    })
     end
+
+    ids = User.insert_all records, returning: %w[ id ]
+
+    permission_records = ids.map do |attrs|
+      (1..50).map do
+        {
+          user_id: attrs["id"],
+          p1: "a" * 50,
+          p2: "b" * 50,
+          p3: "c" * 50,
+        }
+      end
+    end.flatten
+
+    settings_records = ids.map do |attrs|
+      (1..5).map do
+        {
+          user_id: attrs["id"],
+          s1: "a" * 50,
+          s2: "b" * 50,
+          s3: "c" * 50,
+        }
+      end
+    end.flatten
+
+    Permission.insert_all permission_records
+    Setting.insert_all settings_records
+
   end
 
   puts "Batch: #{current_batch}, total: #{current_batch * records_in_batch} users created"

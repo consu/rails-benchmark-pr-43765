@@ -10,10 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_20_061342) do
+ActiveRecord::Schema.define(version: 2021_12_22_072515) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "permissions", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "p1"
+    t.string "p2"
+    t.string "p3"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_permissions_on_user_id"
+  end
+
+  create_table "settings", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "s1"
+    t.string "s2"
+    t.string "s3"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_settings_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "email"
@@ -27,6 +47,7 @@ ActiveRecord::Schema.define(version: 2021_12_20_061342) do
     t.string "skype"
     t.string "linkedin"
     t.string "twitter"
+    t.string "large_data"
     t.integer "failed_attempts"
     t.datetime "reset_password_sent_at", precision: 6
     t.datetime "current_sign_in_at", precision: 6

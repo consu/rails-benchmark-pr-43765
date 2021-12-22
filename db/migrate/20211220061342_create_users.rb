@@ -13,6 +13,7 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string :skype
       t.string :linkedin
       t.string :twitter
+      t.string :large_data
 
       t.integer :failed_attempts
 
